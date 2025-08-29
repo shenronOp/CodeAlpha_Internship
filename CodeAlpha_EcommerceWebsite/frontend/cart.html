@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Cart</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a href="index.html">← Continue shopping</a>
+  <h2>Your Cart</h2>
+  <div id="cart-list"></div>
+  <div id="cart-total"></div>
+  <button id="checkout">Checkout</button>
+
+  <script src="script.js"></script>
+  <script>
+    loadCart();
+    document.getElementById('checkout').addEventListener('click', () => {
+      const cart = getCart();
+      if (cart.length === 0) return alert('Cart is empty');
+      const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+      fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: null, products: cart.map(c => ({ product: c._id, qty: c.qty })), total })
+      }).then(r => r.json()).then(data => {
+        alert('Order placed');
+        localStorage.removeItem('cart');
+        location.href = 'index.html';
+      });
+    });
+  </script>
+</body>
+</html>
